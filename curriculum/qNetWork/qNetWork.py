@@ -6,24 +6,38 @@ import matplotlib.pyplot as plt
 
 
 env = gym.make('FrozenLake-v0')
+
+# tensorflowの初期化
 tf.reset_default_graph
+# 入力値の格納するデータ
 inputs1 = tf.placeholder(shape=[1, 16], dtype=tf.float32)
+# 重み input1をQ値に変換する
 W = tf.Variable(tf.random_uniform([16, 4], 0, 0.01))
+# Q値の計算値を格納する
 Qout = tf.matmul(inputs1, W)
+# 報酬値の推定 ,Qoutを最大値にする予測値
 predict = tf.argmax(Qout, 1)
+# Q値推定値
 nextQ = tf.placeholder(shape=[1, 4], dtype=tf.float32)
+# 損失関数
 loss = tf.reduce_sum(tf.square(nextQ - Qout))
+# 勾配降下法のモデルの定義
 trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
+# lossを最小化するように計算する
 updateModel = trainer.minimize(loss)
+# 変数の初期化
 init = tf.global_variables_initializer()
 
+# 割引率
 y = 0.99
+# 選択するアクション値をきめるためのパラメータ
 e = 0.1
 num_episodes = 3000
 
+# ステップごとの報酬を格納する
 jList = []
+# トータルの報酬を格納する
 rList = []
-
 
 with tf.Session() as sess:
     sess.run(init)
